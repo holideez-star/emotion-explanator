@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>장르 인기곡 추천</title>
+    <style>
+      :root {
+        font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+        color: #1a1a1a;
+        background: #f6f7fb;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+      }
+      .card {
+        width: 100%;
+        max-width: 480px;
+        background: #fff;
+        border-radius: 16px;
+        padding: 28px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+      }
+      h1 {
+        margin: 0 0 8px;
+        font-size: 1.5rem;
+      }
+      p.sub {
+        margin: 0 0 20px;
+        color: #666;
+        font-size: 0.9rem;
+      }
+      form {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 20px;
+      }
+      input {
+        flex: 1;
+        padding: 12px 14px;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        font-size: 1rem;
+      }
+      button {
+        padding: 12px 18px;
+        background: #5b6cff;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      .meta {
+        font-size: 0.85rem;
+        color: #888;
+        margin-bottom: 12px;
+      }
+      ol {
+        margin: 0;
+        padding-left: 1.2rem;
+      }
+      li {
+        margin-bottom: 12px;
+        line-height: 1.4;
+      }
+      .title {
+        font-weight: 600;
+      }
+      .likes {
+        color: #e74c6f;
+        font-size: 0.9rem;
+      }
+      .error {
+        color: #c0392b;
+        background: #fdecea;
+        padding: 12px;
+        border-radius: 8px;
+      }
+      .hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>장르 → 멜론 인기 3곡</h1>
+      <p class="sub">장르를 입력하면 멜론 검색 결과 중 좋아요 수 TOP 3를 보여줘요.</p>
+
+      <form id="form">
+        <input
+          id="genre"
+          type="text"
+          placeholder="예: 인디, 발라드, 락"
+          autocomplete="off"
+          required
+        />
+        <button type="submit" id="submit">추천</button>
+      </form>
+
+      <div id="status" class="meta hidden"></div>
+      <div id="error" class="error hidden"></div>
+      <ol id="results" class="hidden"></ol>
+    </div>
+
+    <script>
+      const form = document.getElementById('form');
+      const genreInput = document.getElementById('genre');
+      const submitBtn = document.getElementById('submit');
+      const statusEl = document.getElementById('status');
+      const errorEl = document.getElementById('error');
+      const resultsEl = document.getElementById('results');
+
+      function show(el) {
+        el.classList.remove('hidden');
+      }
+      function hide(el) {
+        el.classList.add('hidden');
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const genre = genreInput.value.trim();
+        if (!genre) return;
+
+        submitBtn.disabled = true;
+        hide(errorEl);
+        hide(resultsEl);
+        hide(statusEl);
+        statusEl.textContent = '검색 중...';
+        show(statusEl);
+
+        try {
+          const res = await fetch(
+            '/api/recommend?genre=' + encodeURIComponent(genre),
+          );
+          const data = await res.json();
+
+          if (!res.ok || data.error) {
+            errorEl.textContent = data.error || '오류가 발생했어요.';
+            show(errorEl);
+            hide(statusEl);
+            return;
+          }
+
+          statusEl.textContent = `장르: ${data.genre} · 검색어: ${data.query}`;
+          show(statusEl);
+
+          resultsEl.innerHTML = data.songs
+            .map(
+              (s) =>
+                `<li><span class="title">${s.rank}. ${s.title}</span><br />${s.artist}<br /><span class="likes">♡ ${s.likeCnt.toLocaleString()}</span></li>`,
+            )
+            .join('');
+          show(resultsEl);
+        } catch {
+          errorEl.textContent = '서버에 연결할 수 없어요. npm run dev 로 서버를 켜 주세요.';
+          show(errorEl);
+          hide(statusEl);
+        } finally {
+          submitBtn.disabled = false;
+        }
+      });
+    </script>
+  </body>
+</html>

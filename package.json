@@ -1,0 +1,16 @@
+{
+  "name": "emotion-explanator",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Melon data-based song recommender (unofficial scraper via melona).",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "cli": "node cli.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "melona": "2.5.0"
+  }
+}
