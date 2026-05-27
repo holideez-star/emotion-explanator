@@ -1,0 +1,21 @@
+[build]
+  publish = "."
+  command = "npm install"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+  included_files = ["lib/**"]
+
+[functions.recommend]
+  timeout = 10
+
+[build.environment]
+  NODE_VERSION = "20"
+  NETLIFY = "true"
+
+[[redirects]]
+  from = "/api/recommend"
+  to = "/.netlify/functions/recommend"
+  status = 200
+  force = true

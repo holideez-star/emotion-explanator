@@ -6,7 +6,6 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname)));
 
 app.get('/api/recommend', async (req, res) => {
   try {
@@ -25,6 +24,8 @@ app.get('/api/recommend', async (req, res) => {
     });
   }
 });
+
+app.use(express.static(path.join(__dirname)));
 
 app.listen(PORT, () => {
   console.log(`http://localhost:${PORT} 에서 실행 중`);
