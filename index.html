@@ -3,184 +3,706 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>장르 인기곡 추천</title>
+    <title>📚 알라딘 도서 탐험대</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&display=swap"
+      rel="stylesheet"
+    />
     <style>
       :root {
-        font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
-        color: #1a1a1a;
-        background: #f6f7fb;
+        --bg: #fff8f0;
+        --card: #ffffff;
+        --accent: #ff8fab;
+        --text: #4a3728;
+        --muted: #9a8578;
+        --shadow: 0 12px 32px rgba(255, 120, 150, 0.18);
+        --shadow-hover: 0 20px 40px rgba(255, 120, 150, 0.28);
+        --radius: 24px;
+        font-family: 'Gowun Dodum', 'Apple SD Gothic Neo', sans-serif;
+        color: var(--text);
       }
+      * { box-sizing: border-box; }
       body {
         margin: 0;
         min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 24px;
+        background:
+          radial-gradient(circle at 10% 10%, #ffe0ec 0%, transparent 40%),
+          radial-gradient(circle at 90% 20%, #d4eeff 0%, transparent 35%),
+          radial-gradient(circle at 50% 90%, #fff3c4 0%, transparent 40%),
+          var(--bg);
       }
-      .card {
-        width: 100%;
-        max-width: 480px;
-        background: #fff;
-        border-radius: 16px;
-        padding: 28px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-      }
-      h1 {
+      .app { max-width: 1100px; margin: 0 auto; padding: 28px 20px 60px; }
+      header { text-align: center; margin-bottom: 32px; }
+      header h1 {
+        font-family: 'Jua', sans-serif;
+        font-size: clamp(1.8rem, 5vw, 2.6rem);
         margin: 0 0 8px;
-        font-size: 1.5rem;
+        background: linear-gradient(135deg, #ff6b9d, #7eb8ff, #ffc857);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
       }
-      p.sub {
-        margin: 0 0 20px;
-        color: #666;
-        font-size: 0.9rem;
+      header p { margin: 0; color: var(--muted); }
+      .search-panel {
+        background: var(--card);
+        border-radius: var(--radius);
+        padding: 24px;
+        box-shadow: var(--shadow);
+        margin-bottom: 24px;
+        border: 2px solid #ffe0ec;
       }
-      form {
-        display: flex;
-        gap: 8px;
-        margin-bottom: 20px;
+      .search-types { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+      .type-btn {
+        padding: 10px 16px;
+        border: 2px solid #ffd6e8;
+        background: #fff5f9;
+        border-radius: 999px;
+        font-family: inherit;
+        font-size: 0.92rem;
+        cursor: pointer;
+        transition: transform 0.12s ease, background 0.2s;
       }
-      input {
+      .type-btn:hover { background: #ffe8f2; }
+      .type-btn:active, .btn-press:active { transform: scale(0.94); }
+      .type-btn.active {
+        background: linear-gradient(135deg, #ff8fab, #ffb3c6);
+        color: #fff;
+        border-color: transparent;
+        box-shadow: 0 4px 14px rgba(255, 107, 157, 0.4);
+      }
+      .search-row { display: flex; gap: 10px; flex-wrap: wrap; }
+      .search-row input {
         flex: 1;
-        padding: 12px 14px;
-        border: 1px solid #ddd;
-        border-radius: 10px;
+        min-width: 160px;
+        padding: 14px 18px;
+        border: 2px solid #e8d5ff;
+        border-radius: 16px;
+        font-family: inherit;
         font-size: 1rem;
+        outline: none;
       }
-      button {
-        padding: 12px 18px;
-        background: #5b6cff;
+      .search-row input:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 4px rgba(255, 143, 171, 0.2);
+      }
+      .search-btn {
+        padding: 14px 22px;
+        background: linear-gradient(135deg, #7eb8ff, #5a9fd4);
         color: #fff;
         border: none;
-        border-radius: 10px;
-        font-size: 1rem;
+        border-radius: 16px;
+        font-family: 'Jua', sans-serif;
+        font-size: 1.05rem;
         cursor: pointer;
+        box-shadow: 0 6px 18px rgba(94, 159, 212, 0.4);
+        transition: transform 0.12s;
         white-space: nowrap;
       }
-      button:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
+      .both-inputs { display: none; width: 100%; gap: 10px; flex-wrap: wrap; }
+      .both-inputs.active { display: flex; }
+      .single-input.hidden-input { display: none; }
+
+      /* 과학 분야 그래프 */
+      .stats-panel {
+        background: var(--card);
+        border-radius: var(--radius);
+        padding: 22px 24px 18px;
+        box-shadow: var(--shadow);
+        margin-bottom: 36px;
+        border: 2px solid #e0f0ff;
       }
-      .meta {
-        font-size: 0.85rem;
-        color: #888;
-        margin-bottom: 12px;
+      .stats-panel h2 {
+        font-family: 'Jua', sans-serif;
+        font-size: 1.15rem;
+        margin: 0 0 6px;
       }
-      ol {
-        margin: 0;
-        padding-left: 1.2rem;
+      .stats-sub { font-size: 0.85rem; color: var(--muted); margin: 0 0 18px; }
+      .chart-wrap { position: relative; padding: 0 8px 8px 40px; }
+      .chart-y-label {
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%) rotate(-90deg);
+        font-size: 0.75rem;
+        color: var(--muted);
+        white-space: nowrap;
       }
-      li {
-        margin-bottom: 12px;
-        line-height: 1.4;
+      .chart-area {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-around;
+        gap: 12px;
+        height: 200px;
+        border-left: 2px solid #ddd;
+        border-bottom: 2px solid #ddd;
+        padding: 0 8px 0 12px;
+        position: relative;
       }
-      .title {
-        font-weight: 600;
+      .chart-area::before {
+        content: '';
+        position: absolute;
+        left: 0; right: 0;
+        top: 25%; bottom: 0;
+        background: repeating-linear-gradient(
+          to top,
+          transparent,
+          transparent calc(25% - 1px),
+          #f0f0f0 calc(25% - 1px),
+          #f0f0f0 25%
+        );
+        pointer-events: none;
       }
-      .likes {
-        color: #e74c6f;
-        font-size: 0.9rem;
+      .bar-group {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        z-index: 1;
+        max-width: 120px;
       }
-      .error {
-        color: #c0392b;
-        background: #fdecea;
-        padding: 12px;
-        border-radius: 8px;
+      .bar-value {
+        font-family: 'Jua', sans-serif;
+        font-size: 0.82rem;
+        color: var(--text);
+        min-height: 1.2em;
       }
-      .hidden {
-        display: none;
+      .bar {
+        width: 100%;
+        max-width: 64px;
+        border-radius: 14px 14px 6px 6px;
+        min-height: 8px;
+        transition: height 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        position: relative;
+      }
+      .bar::after {
+        content: '';
+        position: absolute;
+        top: 6px; left: 8px; right: 8px;
+        height: 8px;
+        background: rgba(255,255,255,0.35);
+        border-radius: 999px;
+      }
+      .bar-label {
+        font-size: 0.82rem;
+        text-align: center;
+        line-height: 1.3;
+        color: var(--text);
+      }
+      .chart-x-label {
+        text-align: center;
+        font-size: 0.78rem;
+        color: var(--muted);
+        margin-top: 10px;
+        padding-left: 40px;
+      }
+
+      .section-title {
+        font-family: 'Jua', sans-serif;
+        font-size: 1.35rem;
+        margin: 0 0 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .slider-wrap { position: relative; margin-bottom: 40px; }
+      .slider-nav {
+        position: absolute; top: 50%; transform: translateY(-50%);
+        z-index: 2; width: 42px; height: 42px; border-radius: 50%;
+        border: none; background: #fff;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        font-size: 1.2rem; cursor: pointer;
+        transition: transform 0.12s;
+      }
+      .slider-nav.prev { left: -12px; }
+      .slider-nav.next { right: -12px; }
+      .slider {
+        display: flex; gap: 20px; overflow-x: auto;
+        scroll-snap-type: x mandatory; scroll-behavior: smooth;
+        padding: 8px 4px 20px;
+        scrollbar-width: none;
+      }
+      .slider::-webkit-scrollbar { display: none; }
+      .book-card {
+        flex: 0 0 min(300px, 85vw);
+        scroll-snap-align: start;
+        background: var(--card);
+        border-radius: var(--radius);
+        padding: 20px;
+        box-shadow: var(--shadow);
+        border: 2px solid #fff0f5;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        display: flex; flex-direction: column; gap: 12px;
+      }
+      .book-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-hover); }
+      .book-card:active { transform: translateY(-2px) scale(0.98); }
+      .book-card .rank {
+        display: inline-block;
+        background: linear-gradient(135deg, #ffd966, #ffb347);
+        color: #7a4f00;
+        font-family: 'Jua', sans-serif;
+        padding: 4px 12px; border-radius: 999px;
+        font-size: 0.85rem; width: fit-content;
+      }
+      .book-card .cover-wrap { text-align: center; }
+      .book-card img, .detail-cover img {
+        width: 140px; height: 200px; object-fit: cover;
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      }
+      .book-card h3 { font-family: 'Jua', sans-serif; font-size: 1.05rem; margin: 0; line-height: 1.35; }
+      .book-card .author { color: var(--muted); font-size: 0.9rem; margin: 0; }
+      .book-card .meta-line { font-size: 0.82rem; color: #b0886e; margin: 0; }
+      .book-card .desc {
+        font-size: 0.88rem; line-height: 1.55; color: #6b5748; margin: 0;
+        display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
+      }
+      .results-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 18px; margin-bottom: 32px;
+      }
+      .result-section { margin-bottom: 28px; }
+      .empty-msg {
+        text-align: center; padding: 32px; color: var(--muted);
+        background: #fff; border-radius: var(--radius); border: 2px dashed #ffd6e8;
+      }
+      .error-msg {
+        background: #fff0f0; color: #c0392b;
+        padding: 14px 18px; border-radius: 14px;
+        margin-bottom: 20px; border: 1px solid #ffc9c9;
+      }
+      .hidden { display: none !important; }
+
+      .loading-overlay {
+        position: fixed; inset: 0;
+        background: rgba(255, 248, 240, 0.85);
+        backdrop-filter: blur(4px);
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        z-index: 1000; gap: 16px;
+      }
+      .peanut-loader {
+        position: relative; width: 80px; height: 80px;
+        animation: peanut-bounce 0.8s ease-in-out infinite alternate;
+      }
+      .peanut-body {
+        width: 70px; height: 44px;
+        background: linear-gradient(145deg, #d4a574, #c4956a);
+        border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+        position: absolute; top: 18px; left: 5px;
+        box-shadow: inset -4px -4px 8px rgba(0,0,0,0.1);
+      }
+      .peanut-face { position: absolute; top: 28px; left: 22px; font-size: 1.2rem; }
+      .loading-text {
+        font-family: 'Jua', sans-serif; font-size: 1.1rem;
+        animation: pulse-text 1s ease-in-out infinite;
+      }
+      @keyframes peanut-bounce {
+        from { transform: translateY(0) rotate(-5deg); }
+        to { transform: translateY(-12px) rotate(5deg); }
+      }
+      @keyframes pulse-text {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+      }
+
+      .modal-backdrop {
+        position: fixed; inset: 0;
+        background: rgba(74, 55, 40, 0.45);
+        backdrop-filter: blur(6px);
+        z-index: 500;
+        display: flex; align-items: center; justify-content: center;
+        padding: 20px;
+      }
+      .detail-card {
+        background: var(--card);
+        border-radius: 28px; padding: 28px;
+        max-width: 520px; width: 100%;
+        box-shadow: 0 24px 60px rgba(0,0,0,0.2);
+        border: 3px solid #ffe0ec;
+        position: relative;
+        max-height: 90vh; overflow-y: auto;
+      }
+      .close-btn {
+        position: absolute; top: 14px; right: 14px;
+        width: 36px; height: 36px; border-radius: 50%;
+        border: none; background: #fff0f5;
+        font-size: 1.1rem; cursor: pointer;
+        transition: transform 0.12s;
+      }
+      .detail-cover { text-align: center; margin-bottom: 16px; }
+      .detail-card h2 { font-family: 'Jua', sans-serif; font-size: 1.3rem; margin: 0 0 8px; }
+      .detail-author { color: var(--muted); margin: 0 0 14px; }
+      .category-list {
+        background: linear-gradient(135deg, #fff5f9, #f0f8ff);
+        border-radius: 16px; padding: 14px 18px;
+        margin-bottom: 16px; border: 1px solid #ffe0ec;
+      }
+      .category-list .label { font-family: 'Jua', sans-serif; font-size: 0.9rem; margin-bottom: 8px; color: #ff6b9d; }
+      .category-line { font-size: 0.92rem; line-height: 1.8; }
+      .category-line .dot { color: var(--accent); margin-right: 6px; font-weight: bold; }
+      .detail-desc { font-size: 0.92rem; line-height: 1.65; color: #5a4a3a; margin: 0; }
+      .detail-page { margin-top: 12px; font-size: 0.88rem; color: #b0886e; }
+
+      @media (max-width: 600px) {
+        .search-row { flex-direction: column; }
+        .slider-nav.prev { left: 0; }
+        .slider-nav.next { right: 0; }
+        .chart-area { height: 160px; }
       }
     </style>
   </head>
   <body>
-    <div class="card">
-      <h1>장르 → 멜론 인기 3곡</h1>
-      <p class="sub">장르를 입력하면 멜론 검색 결과 중 좋아요 수 TOP 3를 보여줘요.</p>
+    <div class="app">
+      <header>
+        <h1>📚 알라딘 도서 탐험대 ✨</h1>
+        <p>🔍 검색하고 · 🏆 베스트셀러도 보고 · 📖 마음에 드는 책을 골라봐요!</p>
+      </header>
 
-      <form id="form">
-        <input
-          id="genre"
-          type="text"
-          placeholder="예: 인디, 발라드, 락"
-          autocomplete="off"
-          required
-        />
-        <button type="submit" id="submit">추천</button>
-      </form>
+      <section class="search-panel">
+        <div class="search-types" role="group" aria-label="검색 방식">
+          <button type="button" class="type-btn active btn-press" data-type="keyword">🔑 키워드</button>
+          <button type="button" class="type-btn btn-press" data-type="title">📕 도서명</button>
+          <button type="button" class="type-btn btn-press" data-type="author">✍️ 저자명</button>
+          <button type="button" class="type-btn btn-press" data-type="both">📕✍️ 도서명+저자</button>
+        </div>
+        <form id="searchForm">
+          <div class="search-row">
+            <input id="searchInput" class="single-input" type="text"
+              placeholder="읽고 싶은 책을 검색해 보세요 🌈" autocomplete="off" />
+            <div id="bothInputs" class="both-inputs">
+              <input id="titleInput" type="text" placeholder="📕 도서명" autocomplete="off" />
+              <input id="authorInput" type="text" placeholder="✍️ 저자명" autocomplete="off" />
+            </div>
+            <button type="submit" class="search-btn btn-press" id="searchBtn">🔎 검색</button>
+          </div>
+        </form>
+      </section>
 
-      <div id="status" class="meta hidden"></div>
-      <div id="error" class="error hidden"></div>
-      <ol id="results" class="hidden"></ol>
+      <section class="stats-panel" id="statsPanel">
+        <h2>🔬 과학 분야별 발행 도서 수</h2>
+        <p class="stats-sub">알라딘에 등록된 발행 도서(권) 수예요 · 세로축: 도서 수 · 가로축: 분야</p>
+        <div class="chart-wrap">
+          <span class="chart-y-label">발행 도서 수 (권)</span>
+          <div class="chart-area" id="chartArea">
+            <p class="empty-msg" style="width:100%;border:none;background:transparent">📊 그래프 불러오는 중...</p>
+          </div>
+          <p class="chart-x-label">분야</p>
+        </div>
+      </section>
+
+      <div id="errorBox" class="error-msg hidden"></div>
+
+      <section id="bestsellerSection">
+        <h2 class="section-title">🏆 이번 주 베스트셀러</h2>
+        <div class="slider-wrap">
+          <button type="button" class="slider-nav prev btn-press" id="sliderPrev" aria-label="이전">◀</button>
+          <div class="slider" id="bestsellerSlider"></div>
+          <button type="button" class="slider-nav next btn-press" id="sliderNext" aria-label="다음">▶</button>
+        </div>
+      </section>
+
+      <section id="searchResults" class="hidden">
+        <h2 class="section-title" id="resultsTitle">🔍 검색 결과</h2>
+        <div id="exactSection" class="result-section hidden">
+          <h3 class="section-title" style="font-size:1.1rem">🎯 제목이 딱 맞는 책</h3>
+          <div class="results-grid" id="exactGrid"></div>
+        </div>
+        <div id="relatedSection" class="result-section hidden">
+          <h3 class="section-title" style="font-size:1.1rem">💡 관련 있는 책</h3>
+          <div class="results-grid" id="relatedGrid"></div>
+        </div>
+        <div id="generalSection" class="result-section hidden">
+          <div class="results-grid" id="generalGrid"></div>
+        </div>
+      </section>
+    </div>
+
+    <div id="loadingOverlay" class="loading-overlay hidden" aria-live="polite">
+      <div class="peanut-loader" aria-hidden="true">
+        <div class="peanut-body"></div>
+        <div class="peanut-face">😊</div>
+      </div>
+      <p class="loading-text">🥜 땅콩이 책을 찾는 중...</p>
+    </div>
+
+    <div id="detailModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+      <div class="detail-card">
+        <button type="button" class="close-btn btn-press" id="closeDetail" aria-label="닫기">✕</button>
+        <div id="detailContent"></div>
+      </div>
     </div>
 
     <script>
-      const form = document.getElementById('form');
-      const genreInput = document.getElementById('genre');
-      const submitBtn = document.getElementById('submit');
-      const statusEl = document.getElementById('status');
-      const errorEl = document.getElementById('error');
-      const resultsEl = document.getElementById('results');
+      const searchForm = document.getElementById('searchForm');
+      const searchInput = document.getElementById('searchInput');
+      const titleInput = document.getElementById('titleInput');
+      const authorInput = document.getElementById('authorInput');
+      const bothInputs = document.getElementById('bothInputs');
+      const searchBtn = document.getElementById('searchBtn');
+      const typeBtns = document.querySelectorAll('.type-btn');
+      const chartArea = document.getElementById('chartArea');
+      const bestsellerSlider = document.getElementById('bestsellerSlider');
+      const loadingOverlay = document.getElementById('loadingOverlay');
+      const errorBox = document.getElementById('errorBox');
+      const searchResults = document.getElementById('searchResults');
+      const exactSection = document.getElementById('exactSection');
+      const relatedSection = document.getElementById('relatedSection');
+      const generalSection = document.getElementById('generalSection');
+      const exactGrid = document.getElementById('exactGrid');
+      const relatedGrid = document.getElementById('relatedGrid');
+      const generalGrid = document.getElementById('generalGrid');
+      const resultsTitle = document.getElementById('resultsTitle');
+      const detailModal = document.getElementById('detailModal');
+      const detailContent = document.getElementById('detailContent');
+      const closeDetail = document.getElementById('closeDetail');
 
-      function show(el) {
-        el.classList.remove('hidden');
-      }
-      function hide(el) {
-        el.classList.add('hidden');
+      let currentSearchType = 'keyword';
+
+      function show(el) { el.classList.remove('hidden'); }
+      function hide(el) { el.classList.add('hidden'); }
+      function showLoading() { show(loadingOverlay); }
+      function hideLoading() { hide(loadingOverlay); }
+      function showError(msg) { errorBox.textContent = msg; show(errorBox); }
+      function hideError() { hide(errorBox); }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
       }
 
-      form.addEventListener('submit', async (e) => {
+      function pageText(itemPage) {
+        return itemPage ? `📄 ${itemPage}쪽` : '📄 페이지 정보 없음';
+      }
+
+      function renderBookCard(book, options = {}) {
+        const rankBadge = options.showRank && book.bestRank
+          ? `<span class="rank">🥇 ${book.bestRank}위</span>` : '';
+        return `
+          <article class="book-card" data-item-id="${book.itemId}" tabindex="0" role="button">
+            ${rankBadge}
+            <div class="cover-wrap">
+              <img src="${escapeHtml(book.cover)}" alt="${escapeHtml(book.title)} 표지" loading="lazy" />
+            </div>
+            <h3>${escapeHtml(book.title)}</h3>
+            <p class="author">✍️ ${escapeHtml(book.author)}</p>
+            <p class="meta-line">${pageText(book.itemPage)}</p>
+            <p class="desc">${escapeHtml(book.description || '줄거리 정보가 없어요.')}</p>
+          </article>`;
+      }
+
+      function bindCardClicks(container) {
+        container.querySelectorAll('.book-card').forEach((card) => {
+          card.addEventListener('click', () => openDetail(card.dataset.itemId));
+          card.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              openDetail(card.dataset.itemId);
+            }
+          });
+        });
+      }
+
+      async function apiFetch(path) {
+        const res = await fetch(path);
+        const data = await res.json();
+        if (!res.ok || data.error) throw new Error(data.error || '요청에 실패했어요.');
+        return data;
+      }
+
+      function renderChart(fields) {
+        if (!fields?.length) {
+          chartArea.innerHTML = '<p class="empty-msg" style="width:100%;border:none;background:transparent">😢 통계를 불러오지 못했어요.</p>';
+          return;
+        }
+        const maxCount = Math.max(...fields.map((f) => f.count), 1);
+        chartArea.innerHTML = fields.map((f) => {
+          const pct = Math.max((f.count / maxCount) * 100, 6);
+          return `
+            <div class="bar-group">
+              <span class="bar-value">${f.count.toLocaleString()}권</span>
+              <div class="bar" style="height:${pct}%;background:${f.color}" title="${f.label}: ${f.count}권"></div>
+              <span class="bar-label">${escapeHtml(f.label)}</span>
+            </div>`;
+        }).join('');
+      }
+
+      async function loadScienceStats() {
+        try {
+          const data = await apiFetch('/api/science-stats');
+          renderChart(data.fields);
+        } catch {
+          chartArea.innerHTML = '<p class="empty-msg" style="width:100%;border:none;background:transparent">⚠️ 통계 API 연결 실패</p>';
+        }
+      }
+
+      async function loadBestsellers() {
+        showLoading();
+        hideError();
+        try {
+          const data = await apiFetch('/api/bestseller?max=10');
+          if (!data.items?.length) {
+            bestsellerSlider.innerHTML = '<p class="empty-msg">🏆 베스트셀러를 불러오지 못했어요.</p>';
+            return;
+          }
+          bestsellerSlider.innerHTML = data.items.map((b) => renderBookCard(b, { showRank: true })).join('');
+          bindCardClicks(bestsellerSlider);
+        } catch (err) {
+          const onNetlify = location.hostname.includes('netlify.app');
+          showError(onNetlify
+            ? '⚠️ API 연결 실패! Netlify 환경변수 ALADIN_API_KEY 를 확인해 주세요.'
+            : '⚠️ ' + (err.message || 'npm run dev 로 서버를 켜 주세요.'));
+        } finally {
+          hideLoading();
+        }
+      }
+
+      function setSearchMode(type) {
+        currentSearchType = type;
+        typeBtns.forEach((b) => b.classList.toggle('active', b.dataset.type === type));
+        const isBoth = type === 'both';
+        bothInputs.classList.toggle('active', isBoth);
+        searchInput.classList.toggle('hidden-input', isBoth);
+        searchInput.required = !isBoth;
+        titleInput.required = isBoth;
+        authorInput.required = isBoth;
+        const placeholders = {
+          keyword: '키워드로 검색해 보세요 (예: 우주, 우정) 🌟',
+          title: '도서명을 입력해 주세요 📕',
+          author: '저자명을 입력해 주세요 ✍️',
+        };
+        if (!isBoth) searchInput.placeholder = placeholders[type];
+      }
+
+      typeBtns.forEach((btn) => {
+        btn.addEventListener('click', () => setSearchMode(btn.dataset.type));
+      });
+
+      function showSearchResults(data, titleText) {
+        show(searchResults);
+        resultsTitle.textContent = titleText;
+        hide(exactSection);
+        hide(relatedSection);
+        hide(generalSection);
+
+        if (data.queryType === 'keyword') {
+          if (data.exactMatches?.length) {
+            exactGrid.innerHTML = data.exactMatches.map((b) => renderBookCard(b)).join('');
+            bindCardClicks(exactGrid);
+            show(exactSection);
+          }
+          if (data.relatedBooks?.length) {
+            relatedGrid.innerHTML = data.relatedBooks.map((b) => renderBookCard(b)).join('');
+            bindCardClicks(relatedGrid);
+            show(relatedSection);
+          }
+          if (!data.exactMatches?.length && !data.relatedBooks?.length) {
+            generalGrid.innerHTML = '<p class="empty-msg">😢 검색 결과가 없어요.</p>';
+            show(generalSection);
+          }
+        } else {
+          if (data.items?.length) {
+            generalGrid.innerHTML = data.items.map((b) => renderBookCard(b)).join('');
+            bindCardClicks(generalGrid);
+            show(generalSection);
+          } else {
+            generalGrid.innerHTML = '<p class="empty-msg">😢 검색 결과가 없어요.</p>';
+            show(generalSection);
+          }
+        }
+        searchResults.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      searchForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const genre = genreInput.value.trim();
-        if (!genre) return;
-
-        submitBtn.disabled = true;
-        hide(errorEl);
-        hide(resultsEl);
-        hide(statusEl);
-        statusEl.textContent = '검색 중...';
-        show(statusEl);
+        showLoading();
+        hideError();
+        searchBtn.disabled = true;
 
         try {
-          const res = await fetch(
-            '/api/recommend?genre=' + encodeURIComponent(genre),
-          );
-          const data = await res.json();
+          let data;
+          let titleText;
 
-          if (res.status === 404) {
-            const onNetlify = location.hostname.includes('netlify.app');
-            errorEl.textContent = onNetlify
-              ? 'API가 아직 배포되지 않았어요. netlify/functions 와 netlify.toml 이 GitHub에 올라갔는지 확인한 뒤, Netlify에서 Deploy를 다시 해 주세요.'
-              : 'API를 찾을 수 없어요. 터미널에서 npm run dev 실행 후 http://localhost:3000 으로 접속해 주세요. (Live Server로 HTML만 열면 안 됩니다)';
-            show(errorEl);
-            hide(statusEl);
-            return;
+          if (currentSearchType === 'both') {
+            const title = titleInput.value.trim();
+            const author = authorInput.value.trim();
+            if (!title || !author) {
+              showError('⚠️ 도서명과 저자명을 모두 입력해 주세요.');
+              return;
+            }
+            data = await apiFetch(
+              `/api/search?type=both&title=${encodeURIComponent(title)}&author=${encodeURIComponent(author)}`,
+            );
+            titleText = `🔍 "${title}" · "${author}" 일치 도서`;
+          } else {
+            const q = searchInput.value.trim();
+            if (!q) return;
+            data = await apiFetch(
+              `/api/search?q=${encodeURIComponent(q)}&type=${currentSearchType}`,
+            );
+            const labels = { keyword: '키워드', title: '도서명', author: '저자명' };
+            titleText = `🔍 ${labels[currentSearchType]} "${q}" 검색 결과`;
           }
 
-          if (!res.ok || data.error) {
-            errorEl.textContent = data.error || '오류가 발생했어요.';
-            show(errorEl);
-            hide(statusEl);
-            return;
-          }
-
-          statusEl.textContent = `장르: ${data.genre} · 검색어: ${data.query}`;
-          show(statusEl);
-
-          resultsEl.innerHTML = data.songs
-            .map(
-              (s) =>
-                `<li><span class="title">${s.rank}. ${s.title}</span><br />${s.artist}<br /><span class="likes">♡ ${s.likeCnt.toLocaleString()}</span></li>`,
-            )
-            .join('');
-          show(resultsEl);
-        } catch {
-          errorEl.textContent = '서버에 연결할 수 없어요. npm run dev 로 서버를 켜 주세요.';
-          show(errorEl);
-          hide(statusEl);
+          showSearchResults(data, titleText);
+        } catch (err) {
+          showError('⚠️ ' + err.message);
         } finally {
-          submitBtn.disabled = false;
+          hideLoading();
+          searchBtn.disabled = false;
         }
       });
+
+      function renderCategories(categories) {
+        if (!categories?.length) return '<p class="category-line">분류 정보 없음</p>';
+        return categories.map((c) =>
+          `<div class="category-line"><span class="dot">·</span>${escapeHtml(c)}</div>`,
+        ).join('');
+      }
+
+      async function openDetail(itemId) {
+        showLoading();
+        try {
+          const book = await apiFetch(`/api/book?itemId=${encodeURIComponent(itemId)}`);
+          detailContent.innerHTML = `
+            <div class="detail-cover">
+              <img src="${escapeHtml(book.cover)}" alt="${escapeHtml(book.title)} 표지" />
+            </div>
+            <h2>📖 ${escapeHtml(book.title)}</h2>
+            <p class="detail-author">✍️ ${escapeHtml(book.author)}</p>
+            <div class="category-list">
+              <div class="label">🏷️ 분류</div>
+              ${renderCategories(book.categories)}
+            </div>
+            <p class="detail-desc">${escapeHtml(book.description || '줄거리 정보가 없어요.')}</p>
+            <p class="detail-page">${pageText(book.itemPage)} · 📅 ${escapeHtml(book.pubDate || '')}</p>`;
+          show(detailModal);
+        } catch (err) {
+          showError('⚠️ ' + err.message);
+        } finally {
+          hideLoading();
+        }
+      }
+
+      closeDetail.addEventListener('click', () => hide(detailModal));
+      detailModal.addEventListener('click', (e) => { if (e.target === detailModal) hide(detailModal); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hide(detailModal); });
+
+      document.getElementById('sliderPrev').addEventListener('click', () => {
+        bestsellerSlider.scrollBy({ left: -320, behavior: 'smooth' });
+      });
+      document.getElementById('sliderNext').addEventListener('click', () => {
+        bestsellerSlider.scrollBy({ left: 320, behavior: 'smooth' });
+      });
+
+      loadScienceStats();
+      loadBestsellers();
     </script>
   </body>
 </html>

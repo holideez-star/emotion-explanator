@@ -7,15 +7,42 @@
   node_bundler = "esbuild"
   included_files = ["lib/**"]
 
-[functions.recommend]
-  timeout = 10
+[functions.bestseller]
+  timeout = 26
+
+[functions.search]
+  timeout = 15
+
+[functions.book]
+  timeout = 15
+
+[functions.science-stats]
+  timeout = 20
 
 [build.environment]
   NODE_VERSION = "20"
   NETLIFY = "true"
 
 [[redirects]]
-  from = "/api/recommend"
-  to = "/.netlify/functions/recommend"
+  from = "/api/bestseller"
+  to = "/.netlify/functions/bestseller"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/search"
+  to = "/.netlify/functions/search"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/book"
+  to = "/.netlify/functions/book"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/science-stats"
+  to = "/.netlify/functions/science-stats"
   status = 200
   force = true

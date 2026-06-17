@@ -1,1 +1,4 @@
-/api/recommend  /.netlify/functions/recommend  200
+/api/bestseller     /.netlify/functions/bestseller     200
+/api/search         /.netlify/functions/search         200
+/api/book           /.netlify/functions/book           200
+/api/science-stats  /.netlify/functions/science-stats  200
